@@ -112,9 +112,7 @@ function App() {
 						<Item key={`user_${index}`}>{item}</Item>
 					))}
 				</List>
-				<div>
-					<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
-				</div>
+				<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
 				<List>
 					{answers.map((item, index) => (
 						<Item key={`answer_${index}`}>{item}</Item>
