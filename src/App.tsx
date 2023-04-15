@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import styled from "styled-components";
 
 const COUNT = 5;
 const MIN_LEG = 2;
@@ -50,9 +51,9 @@ function App() {
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = "#333";
 
-		const stepSize = width / COUNT;
-		const startX = 10;
+		const startX = width / (COUNT * 2);
 		const startY = 0;
+		const stepSize = (width - startX * 2) / (COUNT - 1);
 
 		// 세로줄
 		for (let column = 0; column < COUNT; column++) {
@@ -104,10 +105,56 @@ function App() {
 	}, []);
 
 	return (
-		<div className="App">
-			<canvas ref={canvasRef} width="1000" height="500"></canvas>
-		</div>
+		<StyledApp className="App">
+			<Wrapper>
+				<List>
+					{users.map((item, index) => (
+						<Item key={`user_${index}`}>{item}</Item>
+					))}
+				</List>
+				<div>
+					<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
+				</div>
+				<List>
+					{answers.map((item, index) => (
+						<Item key={`answer_${index}`}>{item}</Item>
+					))}
+				</List>
+			</Wrapper>
+		</StyledApp>
 	);
 }
 
 export default App;
+
+const StyledApp = styled.div`
+	width: 100%;
+	height: 100%;
+`;
+
+const Wrapper = styled.div`
+	width: 80%;
+	height: 100%;
+	margin: 0 auto;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+`;
+
+const StyledCanvas = styled.canvas`
+	width: 100%;
+`;
+
+const List = styled.ul`
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	margin: 10px 0;
+`;
+
+const Item = styled.li`
+	word-break: break-all;
+	text-align: center;
+	flex-basis: 30%;
+`;
