@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { Router } from "./Router";
 
 const COUNT = 5;
 const MIN_LEG = 2;
@@ -106,7 +107,8 @@ function App() {
 
 	return (
 		<StyledApp className="App">
-			<Wrapper>
+			<Router />
+			{/* <Wrapper>
 				<List>
 					{users.map((item, index) => (
 						<Item key={`user_${index}`}>{item}</Item>
@@ -118,7 +120,7 @@ function App() {
 						<Item key={`answer_${index}`}>{item}</Item>
 					))}
 				</List>
-			</Wrapper>
+			</Wrapper> */}
 		</StyledApp>
 	);
 }
