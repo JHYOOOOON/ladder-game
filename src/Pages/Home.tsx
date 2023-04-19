@@ -58,7 +58,7 @@ export const Home = () => {
 					<HiOutlinePlus />
 				</CountButton>
 			</InnerWrapper>
-			<StyledLink to={`/ladder?count=${userCount}`} className={`${viewType === "modify" && "disabled"}`}>
+			<StyledLink to={`/ladder/${userCount}`} className={`${viewType === "modify" && "disabled"}`}>
 				<button>사다리타기</button>
 			</StyledLink>
 		</Wrapper>
