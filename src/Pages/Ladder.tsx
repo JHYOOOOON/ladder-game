@@ -126,8 +126,9 @@ export const Ladder = () => {
 				))}
 			</List>
 			<ButtonWrapper>
-				<button onClick={() => setShowResult((prev) => !prev)}>전체 결과 {showResult ? "숨기기" : "보기"}</button>
+				<button onClick={() => navigate("/")}>홈으로</button>
 				<button onClick={() => window.location.reload()}>다시 하기</button>
+				<button onClick={() => setShowResult((prev) => !prev)}>전체 결과 {showResult ? "숨기기" : "보기"}</button>
 			</ButtonWrapper>
 			<ResultWrapper className={`${showResult ? "show" : ""}`}>
 				{Object.entries(matches).map(([key, value]) => (
@@ -179,6 +180,8 @@ const ButtonWrapper = styled.div`
 const ResultWrapper = styled.ul`
 	display: none;
 	gap: 10px;
+	width: 100%;
+	flex-wrap: wrap;
 	&.show {
 		display: flex;
 	}
