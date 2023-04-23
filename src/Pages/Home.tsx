@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { HiOutlineMinus, HiOutlinePlus } from "react-icons/hi";
@@ -9,27 +9,56 @@ type VIEW_TYPE = "modify" | "view";
 export const Home = () => {
 	const [viewType, setViewType] = useState<VIEW_TYPE>("view");
 	const [userCount, setUserCount] = useState(MIN_USER_COUNT);
+	const [modifyCount, setModifyCount] = useState(MIN_USER_COUNT);
+	const textRef = useRef<HTMLInputElement>(null);
 
-	const addCount = () => setUserCount((prevValue) => prevValue + 1);
-	const minusCount = () => setUserCount((prevValue) => prevValue - 1);
+	const addCount = () =>
+		setUserCount((prevValue) => {
+			setModifyCount(prevValue + 1);
+			return prevValue + 1;
+		});
+
+	const minusCount = () =>
+		setUserCount((prevValue) => {
+			setModifyCount(prevValue - 1);
+			return prevValue - 1;
+		});
+
+	const changeToView = () => {
+		setViewType("view");
+		if (modifyCount < MIN_USER_COUNT) {
+			setUserCount(MIN_USER_COUNT);
+			setModifyCount(MIN_USER_COUNT);
+			return;
+		}
+		if (modifyCount > MAX_USER_COUNT) {
+			setUserCount(MAX_USER_COUNT);
+			setModifyCount(MAX_USER_COUNT);
+			return;
+		}
+		setUserCount(modifyCount);
+	};
 
 	useEffect(() => {
 		const handleClick = (e: MouseEvent) => {
 			const target = e.target as HTMLElement;
 			if (target.classList.contains("count") === false) {
-				if (userCount > MAX_USER_COUNT) {
-					setUserCount(MAX_USER_COUNT);
-				} else if (userCount < MIN_USER_COUNT) {
-					setUserCount(MIN_USER_COUNT);
-				}
-				setViewType("view");
+				changeToView();
 			}
 		};
 
 		document.addEventListener("click", handleClick);
 
 		return () => document.removeEventListener("click", handleClick);
-	}, [userCount]);
+	}, [modifyCount]);
+
+	useEffect(() => {
+		if (viewType === "modify") {
+			if (!textRef.current) return;
+			textRef.current.focus();
+			textRef.current.setSelectionRange(0, textRef.current.value.length);
+		}
+	}, [viewType]);
 
 	return (
 		<Wrapper>
@@ -43,13 +72,21 @@ export const Home = () => {
 					</Count>
 				) : (
 					<Input
-						type="number"
+						type="text"
 						className="count"
-						min={MIN_USER_COUNT}
-						max={MAX_USER_COUNT}
-						value={userCount}
+						value={modifyCount}
+						ref={textRef}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") {
+								changeToView();
+							}
+						}}
 						onChange={(e) => {
-							setUserCount(Number(e.target.value));
+							const value = Number(e.target.value);
+							if (isNaN(value)) {
+								return;
+							}
+							setModifyCount(value);
 						}}
 					></Input>
 				)}
