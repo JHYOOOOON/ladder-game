@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { HiOutlineMinus, HiOutlinePlus } from "react-icons/hi";
+import { MAX_USER_COUNT, MIN_USER_COUNT } from "../constants";
 
-const MIN_USER_COUNT = 2;
-const MAX_USER_COUNT = 10;
 type VIEW_TYPE = "modify" | "view";
 
 export const Home = () => {

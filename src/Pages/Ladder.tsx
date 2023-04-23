@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { MAX_USER_COUNT, MIN_USER_COUNT } from "../constants";
 
 const MIN_LEG = 2;
 const MAX_LEG = 5;
@@ -10,6 +11,7 @@ const MAX_X = BOARD_SIZE - 1;
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
 export const Ladder = () => {
+	const navigate = useNavigate();
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const { count } = useParams();
 	const countNum = Number(count);
@@ -44,6 +46,9 @@ export const Ladder = () => {
 		return legs;
 	};
 	useEffect(() => {
+		if (countNum < MIN_USER_COUNT || countNum > MAX_USER_COUNT) {
+			navigate("/");
+		}
 		if (!canvasRef.current) return;
 		const ctx = canvasRef.current.getContext("2d");
 		if (ctx === null) return;
