@@ -108,19 +108,6 @@ function App() {
 	return (
 		<StyledApp className="App">
 			<Router />
-			{/* <Wrapper>
-				<List>
-					{users.map((item, index) => (
-						<Item key={`user_${index}`}>{item}</Item>
-					))}
-				</List>
-				<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
-				<List>
-					{answers.map((item, index) => (
-						<Item key={`answer_${index}`}>{item}</Item>
-					))}
-				</List>
-			</Wrapper> */}
 		</StyledApp>
 	);
 }

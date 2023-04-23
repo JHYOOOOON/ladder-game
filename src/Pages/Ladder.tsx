@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 
@@ -15,6 +15,8 @@ export const Ladder = () => {
 	const countNum = Number(count);
 	const users = ALPHABET.split("").slice(0, countNum);
 	const answers = ALPHABET.split("").slice(0, countNum);
+	const [matches, setMatches] = useState<{ [key: string]: string }>({});
+	const [showResult, setShowResult] = useState(false);
 
 	const getRandomNumber = (max: number, min: number) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -37,16 +39,6 @@ export const Ladder = () => {
 			} else {
 				legs[column - 1].includes(randomNumber) === false && rows.add(randomNumber);
 			}
-
-			console.log(
-				column,
-				"column:::::",
-				rows,
-				legOfColumn[column],
-				randomNumber,
-				"hasbefore: ",
-				column !== 0 && legs[column - 1].includes(randomNumber)
-			);
 		}
 		legs.push([]);
 		return legs;
@@ -84,6 +76,35 @@ export const Ladder = () => {
 				ctx.stroke();
 			}
 		}
+
+		// 당첨 결과
+		const wins: { [key: string]: string } = {};
+		for (let column = 0; column < countNum; column++) {
+			const visited = Array.from(Array(BOARD_SIZE), () => Array(countNum).fill(false));
+			const queue: number[][] = [];
+			visited[0][column] = true;
+			queue.push([0, column]);
+			while (queue.length > 0) {
+				const [x, y] = queue.shift()!;
+				if (x === BOARD_SIZE - 1) {
+					wins[users[column]] = answers[y];
+					break;
+				}
+				if (y > 0 && legs[y - 1].includes(x) && visited[x][y - 1] === false) {
+					visited[x][y - 1] = true;
+					queue.push([x, y - 1]);
+					continue;
+				} else if (legs[y].includes(x) && visited[x][y + 1] === false) {
+					visited[x][y + 1] = true;
+					queue.push([x, y + 1]);
+					continue;
+				}
+
+				visited[x + 1][y] = true;
+				queue.push([x + 1, y]);
+			}
+		}
+		setMatches(wins);
 	}, []);
 
 	return (
@@ -99,6 +120,17 @@ export const Ladder = () => {
 					<Item key={`answer_${index}`}>{item}</Item>
 				))}
 			</List>
+			<ButtonWrapper>
+				<button onClick={() => setShowResult((prev) => !prev)}>전체 결과 {showResult ? "숨기기" : "보기"}</button>
+				<button onClick={() => window.location.reload()}>다시 하기</button>
+			</ButtonWrapper>
+			<ResultWrapper className={`${showResult ? "show" : ""}`}>
+				{Object.entries(matches).map(([key, value]) => (
+					<ResultItem key={key}>
+						<p>{key}</p>👉<p>{value}</p>
+					</ResultItem>
+				))}
+			</ResultWrapper>
 		</Wrapper>
 	);
 };
@@ -128,4 +160,29 @@ const Item = styled.li`
 	word-break: break-all;
 	text-align: center;
 	flex-basis: 30%;
+`;
+
+const ButtonWrapper = styled.div`
+	display: flex;
+	gap: 5px;
+	margin: 15px 0;
+	button {
+		cursor: pointer;
+	}
+`;
+
+const ResultWrapper = styled.ul`
+	display: none;
+	gap: 10px;
+	&.show {
+		display: flex;
+	}
+`;
+
+const ResultItem = styled.li`
+	display: flex;
+	padding: 10px 15px;
+	gap: 5px;
+	border: 1px solid black;
+	border-radius: 5%;
 `;
