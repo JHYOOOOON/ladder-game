@@ -10,3 +10,7 @@ export const isUserCountActive = atom<IsActive>(true);
 export const isUserInformActive = atom<IsActive>(false);
 
 export const isLadderActive = atom<IsActive>(false);
+
+export const userName = atom<string[]>([]);
+
+export const resultName = atom<string[]>([]);

@@ -2,7 +2,7 @@ import React from "react";
 import { useAtomValue } from "jotai";
 import styled from "styled-components";
 
-import { Card, UserCount } from "../Components";
+import { Card, UserCount, UserInform } from "../Components";
 import { withIsActive } from "../States";
 
 export function Home() {
@@ -15,7 +15,7 @@ export function Home() {
 					<UserCount />
 				</Card>
 				<Card name="사다리 정보" active={isActive.userInform}>
-					<UserCount />
+					<UserInform />
 				</Card>
 			</LeftWrapper>
 			<RightWrapper>
@@ -37,6 +37,7 @@ const LeftWrapper = styled.div`
 	flex-direction: column;
 	gap: ${({ theme }) => theme.fontSize.xl}rem;
 	flex: 1;
+	max-width: 600px;
 `;
 
 const RightWrapper = styled.div`
