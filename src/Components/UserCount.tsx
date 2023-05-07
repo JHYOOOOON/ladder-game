@@ -1,27 +1,33 @@
-import { useEffect, useRef, useState } from "react";
-import { MAX_USER_COUNT, MIN_USER_COUNT } from "../constants";
-import styled from "styled-components";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HiOutlineMinus, HiOutlinePlus } from "react-icons/hi";
+import styled from "styled-components";
+import { useAtom, useSetAtom } from "jotai";
+
+import { MAX_USER_COUNT, MIN_USER_COUNT } from "../constants";
+import { withUserCount, withUserCountActive, withUserInformActive } from "../States";
 
 type VIEW_TYPE = "modify" | "view";
 
 export function UserCount() {
 	const [viewType, setViewType] = useState<VIEW_TYPE>("view");
-	const [userCount, setUserCount] = useState(MIN_USER_COUNT);
 	const [modifyCount, setModifyCount] = useState(MIN_USER_COUNT);
+	const [userCount, setUserCount] = useAtom(withUserCount);
+	const setIsActive = useSetAtom(withUserCountActive);
+	const setUserNameActive = useSetAtom(withUserInformActive);
 	const textRef = useRef<HTMLInputElement>(null);
 
-	const addCount = () =>
-		setUserCount((prevValue) => {
-			setModifyCount(prevValue + 1);
-			return prevValue + 1;
-		});
+	const addCount = useCallback(() => {
+		if (viewType === "modify") return;
+		setUserCount(userCount + 1);
+		setModifyCount(userCount + 1);
+		console.log(userCount + 1);
+	}, [userCount, viewType]);
 
-	const minusCount = () =>
-		setUserCount((prevValue) => {
-			setModifyCount(prevValue - 1);
-			return prevValue - 1;
-		});
+	const minusCount = useCallback(() => {
+		if (viewType === "modify") return;
+		setUserCount(userCount - 1);
+		setModifyCount(userCount - 1);
+	}, [userCount, viewType]);
 
 	const changeToView = () => {
 		setViewType("view");
@@ -38,10 +44,18 @@ export function UserCount() {
 		setUserCount(modifyCount);
 	};
 
+	const handleClickNextButton = () => {
+		if (viewType === "modify") {
+			changeToView();
+		}
+		setIsActive(false);
+		setUserNameActive(true);
+	};
+
 	useEffect(() => {
 		const handleClick = (e: MouseEvent) => {
 			const target = e.target as HTMLElement;
-			if (target.classList.contains("count") === false) {
+			if (viewType === "modify" && target.closest(".count") === null) {
 				changeToView();
 			}
 		};
@@ -93,7 +107,7 @@ export function UserCount() {
 					<HiOutlinePlus />
 				</CountButton>
 			</InnerWrapper>
-			<button>사다리타기</button>
+			<button onClick={handleClickNextButton}>다음</button>
 		</Wrapper>
 	);
 }
@@ -121,13 +135,13 @@ const Count = styled.p`
 	justify-content: center;
 	width: ${({ theme }) => theme.fontSize.xxxl}rem;
 	padding: ${({ theme }) => theme.fontSize.xxs}rem;
-	font-size: ${({ theme }) => theme.fontSize.xxxl}rem;
+	font-size: ${({ theme }) => theme.fontSize.xxl}rem;
 `;
 
 const Input = styled.input`
 	width: ${({ theme }) => theme.fontSize.xxxl}rem;
 	padding: 0 ${({ theme }) => theme.fontSize.xxs}rem;
-	font-size: ${({ theme }) => theme.fontSize.xxxl}rem;
+	font-size: ${({ theme }) => theme.fontSize.xxl}rem;
 	text-align: center;
 	&::-webkit-outer-spin-button,
 	&::-webkit-inner-spin-button {
