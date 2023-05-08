@@ -30,6 +30,9 @@ export function Home() {
 const Main = styled.main`
 	display: flex;
 	gap: ${({ theme }) => theme.fontSize.xl}rem;
+	${({ theme }) => theme.mediaQuery.tablet} {
+		flex-direction: column;
+	}
 `;
 
 const LeftWrapper = styled.div`
@@ -37,9 +40,14 @@ const LeftWrapper = styled.div`
 	flex-direction: column;
 	gap: ${({ theme }) => theme.fontSize.xl}rem;
 	flex: 1;
-	max-width: 600px;
+	min-width: 320px;
+	max-width: 500px;
+	${({ theme }) => theme.mediaQuery.tablet} {
+		max-width: 100%;
+	}
 `;
 
 const RightWrapper = styled.div`
+	min-width: 320px;
 	flex: 1;
 `;

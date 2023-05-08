@@ -21,7 +21,7 @@ const Button = css`
 	font-size: ${({ theme }) => theme.fontSize.base}rem;
 	color: #fff;
 	&:hover {
-		box-shadow: inset 8rem 0 0 0 #fff;
+		box-shadow: inset 9rem 0 0 0 #fff;
 	}
 	transition: 0.2s;
 	cursor: pointer;

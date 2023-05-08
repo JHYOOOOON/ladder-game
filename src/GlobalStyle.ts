@@ -1,5 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
+import { mediaQuery } from "./Theme";
 
 const GlobalStyle = createGlobalStyle`
     ${reset}
@@ -11,6 +12,10 @@ const GlobalStyle = createGlobalStyle`
     html, body, #root{
         width: 100%;
         height: 100%;
+        font-size: 16px;
+        ${mediaQuery.tablet} {
+            font-size: 14px;
+        }
     }
 `;
 
