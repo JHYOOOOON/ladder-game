@@ -21,7 +21,6 @@ export function UserCount() {
 		if (viewType === "modify") return;
 		setUserCount(userCount + 1);
 		setModifyCount(userCount + 1);
-		console.log(userCount + 1);
 	}, [userCount, viewType]);
 
 	const minusCount = useCallback(() => {
