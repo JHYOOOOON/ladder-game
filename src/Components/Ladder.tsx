@@ -1,33 +1,31 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useAtomValue } from "jotai";
 import styled from "styled-components";
-import { MAX_USER_COUNT, MIN_USER_COUNT } from "../constants";
+
+import { withResultNames, withUserCount, withUserNames } from "../States";
 
 const MIN_LEG = 2;
 const MAX_LEG = 5;
 const BOARD_SIZE = 12;
 const MIN_X = 1;
 const MAX_X = BOARD_SIZE - 1;
-const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
-export const Ladder = () => {
-	const navigate = useNavigate();
+export function Ladder() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const { count } = useParams();
-	const countNum = Number(count);
-	const users = ALPHABET.split("").slice(0, countNum);
-	const answers = ALPHABET.split("").slice(0, countNum);
+	const userCount = useAtomValue(withUserCount);
 	const [matches, setMatches] = useState<{ [key: string]: string }>({});
 	const [showResult, setShowResult] = useState(false);
+	const userNames = useAtomValue(withUserNames);
+	const resultNames = useAtomValue(withResultNames);
 
 	const getRandomNumber = (max: number, min: number) => Math.floor(Math.random() * (max - min)) + min;
 
 	const getLegs = () => {
-		const legOfColumn = Array.from({ length: countNum - 1 }, () => getRandomNumber(MAX_LEG, MIN_LEG));
+		const legOfColumn = Array.from({ length: userCount - 1 }, () => getRandomNumber(MAX_LEG, MIN_LEG));
 		const legs: number[][] = [];
 		let rows: Set<number> = new Set();
 		let column = 0;
-		while (column < countNum - 1) {
+		while (column < userCount - 1) {
 			if (rows.size === legOfColumn[column]) {
 				legs.push([...rows].sort());
 				rows.clear();
@@ -46,9 +44,6 @@ export const Ladder = () => {
 		return legs;
 	};
 	useEffect(() => {
-		if (countNum < MIN_USER_COUNT || countNum > MAX_USER_COUNT) {
-			navigate("/");
-		}
 		if (!canvasRef.current) return;
 		const ctx = canvasRef.current.getContext("2d");
 		if (ctx === null) return;
@@ -58,15 +53,15 @@ export const Ladder = () => {
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = "#333";
 
-		const startX = width / (countNum * 2);
+		const startX = width / (userCount * 2);
 		const startY = 0;
-		const stepSize = (width - startX * 2) / (countNum - 1);
+		const stepSize = (width - startX * 2) / (userCount - 1);
 
 		// 세로줄
-		for (let column = 0; column < countNum; column++) {
+		for (let column = 0; column < userCount; column++) {
 			ctx.beginPath();
 			ctx.moveTo(startX + column * stepSize, 0);
-			ctx.lineTo(startX + column * stepSize, startY + countNum * stepSize);
+			ctx.lineTo(startX + column * stepSize, startY + userCount * stepSize);
 			ctx.stroke();
 		}
 
@@ -84,15 +79,15 @@ export const Ladder = () => {
 
 		// 당첨 결과
 		const wins: { [key: string]: string } = {};
-		for (let column = 0; column < countNum; column++) {
-			const visited = Array.from(Array(BOARD_SIZE), () => Array(countNum).fill(false));
+		for (let column = 0; column < userCount; column++) {
+			const visited = Array.from(Array(BOARD_SIZE), () => Array(userCount).fill(false));
 			const queue: number[][] = [];
 			visited[0][column] = true;
 			queue.push([0, column]);
 			while (queue.length > 0) {
 				const [x, y] = queue.shift()!;
 				if (x === BOARD_SIZE - 1) {
-					wins[users[column]] = answers[y];
+					wins[userNames[column]] = resultNames[y];
 					break;
 				}
 				if (y > 0 && legs[y - 1].includes(x) && visited[x][y - 1] === false) {
@@ -115,18 +110,17 @@ export const Ladder = () => {
 	return (
 		<Wrapper>
 			<List>
-				{users.map((item, index) => (
-					<Item key={`user_${index}`}>{item}</Item>
+				{userNames.map((name, index) => (
+					<Item key={`user_${index}`}>{name}</Item>
 				))}
 			</List>
 			<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
 			<List>
-				{answers.map((item, index) => (
-					<Item key={`answer_${index}`}>{item}</Item>
+				{resultNames.map((result, index) => (
+					<Item key={`answer_${index}`}>{result}</Item>
 				))}
 			</List>
 			<ButtonWrapper>
-				<button onClick={() => navigate("/")}>홈으로</button>
 				<button onClick={() => window.location.reload()}>다시 하기</button>
 				<button onClick={() => setShowResult((prev) => !prev)}>전체 결과 {showResult ? "숨기기" : "보기"}</button>
 			</ButtonWrapper>
@@ -139,7 +133,7 @@ export const Ladder = () => {
 			</ResultWrapper>
 		</Wrapper>
 	);
-};
+}
 
 const Wrapper = styled.div`
 	width: 100%;

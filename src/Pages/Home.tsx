@@ -2,7 +2,7 @@ import React from "react";
 import { useAtomValue } from "jotai";
 import styled from "styled-components";
 
-import { Card, UserCount, UserInform } from "../Components";
+import { Card, Ladder, UserCount, UserInform } from "../Components";
 import { withIsActive } from "../States";
 
 export function Home() {
@@ -20,7 +20,7 @@ export function Home() {
 			</LeftWrapper>
 			<RightWrapper>
 				<Card name="사다리 타기" active={isActive.ladder}>
-					<UserCount />
+					<Ladder />
 				</Card>
 			</RightWrapper>
 		</Main>

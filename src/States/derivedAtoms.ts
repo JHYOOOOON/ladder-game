@@ -52,6 +52,10 @@ export const withInitialResultName = atom(null, (get, set, newValue: number) =>
 	)
 );
 
+export const withUserNames = atom((get) => get(userName));
+
+export const withResultNames = atom((get) => get(resultName));
+
 export const withUserName = atomFamily((index: number) =>
 	atom(
 		(get) => get(userName)[index],

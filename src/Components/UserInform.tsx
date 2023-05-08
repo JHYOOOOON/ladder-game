@@ -1,18 +1,38 @@
 import { useEffect } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 
-import { withInitialResultName, withInitialUserName, withUserCount } from "../States";
+import {
+	withInitialResultName,
+	withInitialUserName,
+	withLadderActive,
+	withUserCount,
+	withUserCountActive,
+	withUserInformActive,
+} from "../States";
 import { UserName, ResultName } from ".";
 
 export function UserInform() {
 	const userCount = useAtomValue(withUserCount);
 	const setInitialUserName = useSetAtom(withInitialUserName);
 	const setInitialResultName = useSetAtom(withInitialResultName);
+	const setIsActive = useSetAtom(withUserInformActive);
+	const setUserCountActive = useSetAtom(withUserCountActive);
+	const setLadderAcive = useSetAtom(withLadderActive);
 
 	useEffect(() => {
 		setInitialUserName(userCount);
 		setInitialResultName(userCount);
 	}, [userCount]);
+
+	const handleClickPrev = () => {
+		setIsActive(false);
+		setUserCountActive(true);
+	};
+
+	const handleClickNext = () => {
+		setIsActive(false);
+		setLadderAcive(true);
+	};
 
 	return (
 		<section>
@@ -31,8 +51,8 @@ export function UserInform() {
 				))}
 			</article>
 			<div>
-				<button>이전</button>
-				<button>다음</button>
+				<button onClick={handleClickPrev}>이전</button>
+				<button onClick={handleClickNext}>다음</button>
 			</div>
 		</section>
 	);
