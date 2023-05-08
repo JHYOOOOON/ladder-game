@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
 
 import { withResultName } from "../States";
@@ -9,5 +10,21 @@ interface IResultName {
 
 export function ResultName({ index }: IResultName) {
 	const [resultName, setResultName] = useAtom(withResultName(index));
-	return <Input value={resultName || ""} onChange={(event) => setResultName(event.target.value)} />;
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		if (!inputRef.current) return;
+
+		const handleBlankInput = () => {
+			if (resultName.trim() === "") {
+				setResultName(`결과${index + 1}`);
+			}
+		};
+
+		inputRef.current.addEventListener("blur", handleBlankInput);
+
+		return () => inputRef.current?.removeEventListener("blur", handleBlankInput);
+	}, [resultName]);
+
+	return <Input ref={inputRef} value={resultName || ""} onChange={(event) => setResultName(event.target.value)} />;
 }

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
 
 import { withUserName } from "../States";
@@ -9,6 +10,21 @@ interface IUserName {
 
 export function UserName({ index }: IUserName) {
 	const [userName, setUserName] = useAtom(withUserName(index));
+	const inputRef = useRef<HTMLInputElement>(null);
 
-	return <Input value={userName || ""} onChange={(event) => setUserName(event.target.value)} />;
+	useEffect(() => {
+		if (!inputRef.current) return;
+
+		const handleBlankInput = () => {
+			if (userName.trim() === "") {
+				setUserName(`참여자${index + 1}`);
+			}
+		};
+
+		inputRef.current.addEventListener("blur", handleBlankInput);
+
+		return () => inputRef.current?.removeEventListener("blur", handleBlankInput);
+	}, [userName]);
+
+	return <Input ref={inputRef} value={userName || ""} onChange={(event) => setUserName(event.target.value)} />;
 }
