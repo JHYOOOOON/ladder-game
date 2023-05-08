@@ -163,8 +163,11 @@ const Item = styled.li`
 	display: flex;
 	justify-content: center;
 	align-items: flex-end;
-	word-break: break-all;
+	word-break: break-word;
+	line-height: 1.2;
 	flex-basis: 30%;
+	font-size: ${({ theme }) => theme.fontSize.sm}rem;
+	text-align: center;
 `;
 
 const Result = styled(Item)`
