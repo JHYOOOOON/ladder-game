@@ -5,6 +5,7 @@ import { useAtom, useSetAtom } from "jotai";
 
 import { MAX_USER_COUNT, MIN_USER_COUNT } from "../constants";
 import { withUserCount, withUserCountActive, withUserInformActive } from "../States";
+import { PrimaryButton } from "./Common";
 
 type VIEW_TYPE = "modify" | "view";
 
@@ -107,7 +108,7 @@ export function UserCount() {
 					<HiOutlinePlus />
 				</CountButton>
 			</InnerWrapper>
-			<button onClick={handleClickNextButton}>다음</button>
+			<PrimaryButton onClick={handleClickNextButton}>다음</PrimaryButton>
 		</Wrapper>
 	);
 }

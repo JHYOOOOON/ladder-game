@@ -1,6 +1,7 @@
 import { useAtom } from "jotai";
 
 import { withResultName } from "../States";
+import { Input } from "./Common";
 
 interface IResultName {
 	index: number;
@@ -8,5 +9,5 @@ interface IResultName {
 
 export function ResultName({ index }: IResultName) {
 	const [resultName, setResultName] = useAtom(withResultName(index));
-	return <input value={resultName || ""} onChange={(event) => setResultName(event.target.value)} />;
+	return <Input value={resultName || ""} onChange={(event) => setResultName(event.target.value)} />;
 }
