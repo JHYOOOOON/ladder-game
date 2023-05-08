@@ -3,6 +3,7 @@ import { useAtomValue } from "jotai";
 import styled from "styled-components";
 
 import { withResultNames, withUserCount, withUserNames } from "../States";
+import { PrimaryButton, SecondaryButton } from "./Common";
 
 const MIN_LEG = 2;
 const MAX_LEG = 5;
@@ -121,8 +122,10 @@ export function Ladder() {
 				))}
 			</List>
 			<ButtonWrapper>
-				<button onClick={() => window.location.reload()}>다시 하기</button>
-				<button onClick={() => setShowResult((prev) => !prev)}>전체 결과 {showResult ? "숨기기" : "보기"}</button>
+				<SecondaryButton onClick={() => window.location.reload()}>다시 하기</SecondaryButton>
+				<PrimaryButton onClick={() => setShowResult((prev) => !prev)}>
+					전체 결과 {showResult ? "숨기기" : "보기"}
+				</PrimaryButton>
 			</ButtonWrapper>
 			<ResultWrapper className={`${showResult ? "show" : ""}`}>
 				{Object.entries(matches).map(([key, value]) => (
