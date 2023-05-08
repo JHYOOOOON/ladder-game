@@ -3,7 +3,6 @@ import { useAtomValue } from "jotai";
 import styled from "styled-components";
 
 import { withResultNames, withUserCount, withUserNames } from "../States";
-import { PrimaryButton, SecondaryButton } from "./Common";
 
 const MIN_LEG = 2;
 const MAX_LEG = 5;
@@ -118,14 +117,12 @@ export function Ladder() {
 			<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
 			<List>
 				{resultNames.map((result, index) => (
-					<Item key={`answer_${index}`}>{result}</Item>
+					<Result key={`answer_${index}`}>{result}</Result>
 				))}
 			</List>
 			<ButtonWrapper>
-				<SecondaryButton onClick={() => window.location.reload()}>다시 하기</SecondaryButton>
-				<PrimaryButton onClick={() => setShowResult((prev) => !prev)}>
-					전체 결과 {showResult ? "숨기기" : "보기"}
-				</PrimaryButton>
+				<button onClick={() => window.location.reload()}>다시 하기</button>
+				<button onClick={() => setShowResult((prev) => !prev)}>전체 결과 {showResult ? "숨기기" : "보기"}</button>
 			</ButtonWrapper>
 			<ResultWrapper className={`${showResult ? "show" : ""}`}>
 				{Object.entries(matches).map(([key, value]) => (
@@ -160,9 +157,15 @@ const List = styled.ul`
 `;
 
 const Item = styled.li`
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
 	word-break: break-all;
-	text-align: center;
 	flex-basis: 30%;
+`;
+
+const Result = styled(Item)`
+	align-items: flex-start;
 `;
 
 const ButtonWrapper = styled.div`
