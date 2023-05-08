@@ -4,6 +4,7 @@ export const Input = styled.input`
 	border: 1px solid #999;
 	border-radius: 3px;
 	margin-right: 5px;
+	margin-bottom: 3px;
 	font-size: ${({ theme }) => theme.fontSize.sm}rem;
 	padding: 3px 5px;
 	transition: 0.2s border;
