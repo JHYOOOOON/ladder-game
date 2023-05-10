@@ -1,23 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useAtomValue } from "jotai";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { withResultNames, withUserCount, withUserNames } from "../States";
 import { PrimaryButton, SecondaryButton } from "./Common";
+import { BOARD_SIZE, COLORS, MAX_LEG, MAX_X, MIN_LEG, MIN_X } from "../constants";
 
-const MIN_LEG = 2;
-const MAX_LEG = 5;
-const BOARD_SIZE = 12;
-const MIN_X = 1;
-const MAX_X = BOARD_SIZE - 1;
-
-export function Ladder() {
+export function LadderGame() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const userCount = useAtomValue(withUserCount);
 	const [matches, setMatches] = useState<{ [key: string]: string }>({});
 	const [showResult, setShowResult] = useState(false);
 	const userNames = useAtomValue(withUserNames);
 	const resultNames = useAtomValue(withResultNames);
+	const [ladders, setLadders] = useState<number[][] | null>(null);
+	const [clickedColumn, setClickedColumn] = useState<number | null>(null);
+	const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
 	const getRandomNumber = (max: number, min: number) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -44,9 +42,11 @@ export function Ladder() {
 		legs.push([]);
 		return legs;
 	};
+
 	useEffect(() => {
 		if (!canvasRef.current) return;
-		const ctx = canvasRef.current.getContext("2d");
+		ctxRef.current = canvasRef.current.getContext("2d");
+		const ctx = ctxRef.current;
 		if (ctx === null) return;
 
 		const width = canvasRef.current.width;
@@ -55,25 +55,25 @@ export function Ladder() {
 		ctx.strokeStyle = "#333";
 
 		const startX = width / (userCount * 2);
-		const startY = 0;
 		const stepSize = (width - startX * 2) / (userCount - 1);
 
 		// 세로줄
 		for (let column = 0; column < userCount; column++) {
 			ctx.beginPath();
 			ctx.moveTo(startX + column * stepSize, 0);
-			ctx.lineTo(startX + column * stepSize, startY + userCount * stepSize);
+			ctx.lineTo(startX + column * stepSize, height);
 			ctx.stroke();
 		}
 
 		const legs = getLegs();
+		setLadders(legs);
 
 		// 가로줄
 		for (let column = 0; column < legs.length; column++) {
 			for (const row of legs[column]) {
 				ctx.beginPath();
-				ctx.moveTo(startX + column * stepSize, startY + row * (height / MAX_X));
-				ctx.lineTo(startX + stepSize * (column + 1), startY + row * (height / MAX_X));
+				ctx.moveTo(startX + column * stepSize, row * (height / MAX_X));
+				ctx.lineTo(startX + stepSize * (column + 1), row * (height / MAX_X));
 				ctx.stroke();
 			}
 		}
@@ -106,13 +106,80 @@ export function Ladder() {
 			}
 		}
 		setMatches(wins);
+		ctx.save();
 	}, []);
+
+	useEffect(() => {
+		if (!ladders || clickedColumn === null || !canvasRef.current) return;
+		if (!canvasRef.current || !ctxRef.current) return;
+		const ctx = ctxRef.current;
+
+		ctx.restore();
+
+		const width = canvasRef.current.width;
+		const height = canvasRef.current.height;
+		ctx.lineWidth = 5;
+		ctx.strokeStyle = COLORS[clickedColumn];
+
+		const startX = width / (userCount * 2);
+		const stepSize = (width - startX * 2) / (userCount - 1);
+
+		const visited = Array.from(Array(BOARD_SIZE), () => Array(userCount).fill(false));
+		const queue: number[][] = [];
+		visited[0][clickedColumn] = true;
+		queue.push([0, clickedColumn]);
+		while (queue.length > 0) {
+			const [x, y] = queue.shift()!;
+			if (x === BOARD_SIZE - 1) {
+				break;
+			}
+			if (y > 0 && ladders[y - 1].includes(x) && visited[x][y - 1] === false) {
+				visited[x][y - 1] = true;
+				queue.push([x, y - 1]);
+
+				ctx.beginPath();
+				ctx.moveTo(startX + y * stepSize, x * (height / MAX_X));
+				ctx.lineTo(startX + stepSize * (y - 1), x * (height / MAX_X));
+				ctx.stroke();
+
+				continue;
+			} else if (ladders[y].includes(x) && visited[x][y + 1] === false) {
+				visited[x][y + 1] = true;
+				queue.push([x, y + 1]);
+
+				ctx.beginPath();
+				ctx.moveTo(startX + y * stepSize, x * (height / MAX_X));
+				ctx.lineTo(startX + stepSize * (y + 1), x * (height / MAX_X));
+				ctx.stroke();
+
+				continue;
+			}
+
+			visited[x + 1][y] = true;
+			queue.push([x + 1, y]);
+			ctx.beginPath();
+			ctx.moveTo(startX + y * stepSize, (height / MAX_X) * x);
+			ctx.lineTo(startX + y * stepSize, (height / MAX_X) * (x + 1));
+			ctx.stroke();
+		}
+	}, [ladders, clickedColumn]);
+
+	const handleClick = (event: MouseEvent) => {
+		const target = event.target as HTMLElement;
+		console.log(target.dataset.index);
+		if (target.dataset.index === undefined) return;
+		setClickedColumn(Number(target.dataset.index));
+	};
 
 	return (
 		<Wrapper>
-			<List>
+			<List onClick={handleClick}>
 				{userNames.map((name, index) => (
-					<Item key={`user_${index}`}>{name}</Item>
+					<User>
+						<UserButton key={`user_${index}`} data-index={index}>
+							{name}
+						</UserButton>
+					</User>
 				))}
 			</List>
 			<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
@@ -159,7 +226,7 @@ const List = styled.ul`
 	margin: 10px 0;
 `;
 
-const Item = styled.li`
+const Item = css`
 	display: flex;
 	justify-content: center;
 	align-items: flex-end;
@@ -170,7 +237,18 @@ const Item = styled.li`
 	text-align: center;
 `;
 
-const Result = styled(Item)`
+const User = styled.li`
+	${Item}
+`;
+
+const UserButton = styled.button`
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+`;
+
+const Result = styled.li`
+	${Item}
 	align-items: flex-start;
 `;
 

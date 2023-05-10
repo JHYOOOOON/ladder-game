@@ -2,7 +2,7 @@ import React from "react";
 import { useAtomValue } from "jotai";
 import styled from "styled-components";
 
-import { Card, Ladder, UserCount, UserInform } from "../Components";
+import { Card, LadderGame, UserCount, UserInform } from "../Components";
 import { withIsActive } from "../States";
 
 export function Home() {
@@ -20,7 +20,7 @@ export function Home() {
 			</LeftWrapper>
 			<RightWrapper>
 				<Card name="사다리 타기" active={isActive.ladder}>
-					<Ladder />
+					<LadderGame />
 				</Card>
 			</RightWrapper>
 		</Main>
@@ -30,8 +30,6 @@ export function Home() {
 const Main = styled.main`
 	display: flex;
 	gap: ${({ theme }) => theme.fontSize.xl}rem;
-	max-width: 1500px;
-	margin: 0 auto;
 	${({ theme }) => theme.mediaQuery.tablet} {
 		flex-direction: column;
 	}
