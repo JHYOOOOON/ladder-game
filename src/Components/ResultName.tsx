@@ -17,7 +17,7 @@ export function ResultName({ index }: IResultName) {
 
 		const handleBlankInput = () => {
 			if (resultName.trim() === "") {
-				setResultName(`결과${index + 1}`);
+				setResultName("꽝");
 			}
 		};
 

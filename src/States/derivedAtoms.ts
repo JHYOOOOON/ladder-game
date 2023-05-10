@@ -48,7 +48,7 @@ export const withInitialUserName = atom(null, (get, set, newValue: number) =>
 export const withInitialResultName = atom(null, (get, set, newValue: number) =>
 	set(
 		resultName,
-		Array.from({ length: newValue }, (_, index) => `결과${index + 1}`)
+		Array.from({ length: newValue }, (_, index) => "꽝")
 	)
 );
 
