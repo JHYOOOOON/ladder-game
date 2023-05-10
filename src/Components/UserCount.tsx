@@ -63,7 +63,7 @@ export function UserCount() {
 		document.addEventListener("click", handleClick);
 
 		return () => document.removeEventListener("click", handleClick);
-	}, [modifyCount]);
+	}, [viewType, modifyCount]);
 
 	useEffect(() => {
 		if (viewType === "modify") {
