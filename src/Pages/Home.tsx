@@ -30,6 +30,8 @@ export function Home() {
 const Main = styled.main`
 	display: flex;
 	gap: ${({ theme }) => theme.fontSize.xl}rem;
+	max-width: 1500px;
+	margin: 0 auto;
 	${({ theme }) => theme.mediaQuery.tablet} {
 		flex-direction: column;
 	}
