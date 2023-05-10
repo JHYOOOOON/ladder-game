@@ -6,10 +6,14 @@ import { withResultNames, withUserCount, withUserNames } from "../States";
 import { PrimaryButton, SecondaryButton } from "./Common";
 import { BOARD_SIZE, COLORS, MAX_LEG, MAX_X, MIN_LEG, MIN_X } from "../constants";
 
+type Match = { name: string; value: string[] };
+
+type Matches = Match[];
+
 export function LadderGame() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const userCount = useAtomValue(withUserCount);
-	const [matches, setMatches] = useState<{ [key: string]: string }>({});
+	const [matches, setMatches] = useState<Matches>([]);
 	const [showResult, setShowResult] = useState(false);
 	const userNames = useAtomValue(withUserNames);
 	const resultNames = useAtomValue(withResultNames);
@@ -79,7 +83,7 @@ export function LadderGame() {
 		}
 
 		// 당첨 결과
-		const wins: { [key: string]: string } = {};
+		const wins = new Map();
 		for (let column = 0; column < userCount; column++) {
 			const visited = Array.from(Array(BOARD_SIZE), () => Array(userCount).fill(false));
 			const queue: number[][] = [];
@@ -88,7 +92,11 @@ export function LadderGame() {
 			while (queue.length > 0) {
 				const [x, y] = queue.shift()!;
 				if (x === BOARD_SIZE - 1) {
-					wins[userNames[column]] = resultNames[y];
+					if (wins.has(resultNames[y])) {
+						wins.set(resultNames[y], [...wins.get(resultNames[y]), userNames[column]]);
+					} else {
+						wins.set(resultNames[y], [userNames[column]]);
+					}
 					break;
 				}
 				if (y > 0 && legs[y - 1].includes(x) && visited[x][y - 1] === false) {
@@ -105,7 +113,15 @@ export function LadderGame() {
 				queue.push([x + 1, y]);
 			}
 		}
-		setMatches(wins);
+		const match: Matches = Array.from(wins, ([name, value]) => ({ name, value }));
+		match.sort((a, b) => {
+			if (a.value.length === b.value.length) {
+				return a.name < b.name ? -1 : 1;
+			} else {
+				return a.value.length - b.value.length;
+			}
+		});
+		setMatches(match);
 		ctx.save();
 	}, []);
 
@@ -166,7 +182,6 @@ export function LadderGame() {
 
 	const handleClick = (event: MouseEvent) => {
 		const target = event.target as HTMLElement;
-		console.log(target.dataset.index);
 		if (target.dataset.index === undefined) return;
 		setClickedColumn(Number(target.dataset.index));
 	};
@@ -175,10 +190,8 @@ export function LadderGame() {
 		<Wrapper>
 			<List onClick={handleClick}>
 				{userNames.map((name, index) => (
-					<User>
-						<UserButton key={`user_${index}`} data-index={index}>
-							{name}
-						</UserButton>
+					<User key={`user_${index}`}>
+						<UserButton data-index={index}>{name}</UserButton>
 					</User>
 				))}
 			</List>
@@ -195,10 +208,15 @@ export function LadderGame() {
 				</PrimaryButton>
 			</ButtonWrapper>
 			<ResultWrapper className={`${showResult ? "show" : ""}`}>
-				{Object.entries(matches).map(([key, value]) => (
-					<ResultItem key={key}>
-						<p>{key}</p>👉<p>{value}</p>
-					</ResultItem>
+				{matches.map((item, index) => (
+					<section key={`${item}_${index}`}>
+						<ResultTitle>{item.name}</ResultTitle>
+						<ResultList>
+							{item.value.map((value, index) => (
+								<ResultItem key={`${value}_${index}`}>{value}</ResultItem>
+							))}
+						</ResultList>
+					</section>
 				))}
 			</ResultWrapper>
 		</Wrapper>
@@ -263,18 +281,28 @@ const ButtonWrapper = styled.div`
 
 const ResultWrapper = styled.ul`
 	display: none;
-	gap: 10px;
+	flex-direction: column;
+	gap: 15px;
 	width: 100%;
-	flex-wrap: wrap;
 	&.show {
 		display: flex;
 	}
 `;
 
-const ResultItem = styled.li`
+const ResultTitle = styled.p`
+	font-size: ${({ theme }) => theme.fontSize.xl}rem;
+	margin-bottom: 7px;
+`;
+
+const ResultList = styled.ul`
 	display: flex;
-	padding: 10px 15px;
 	gap: 5px;
+	flex-wrap: wrap;
+`;
+
+const ResultItem = styled.li`
+	padding: 5px 8px;
 	border: 1px solid black;
-	border-radius: 5%;
+	border-radius: 3px;
+	word-break: keep-all;
 `;
