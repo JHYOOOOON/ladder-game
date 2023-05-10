@@ -28,6 +28,8 @@ export function Home() {
 }
 
 const Main = styled.main`
+	margin: 0 auto;
+	max-width: 1800px;
 	display: flex;
 	gap: ${({ theme }) => theme.fontSize.xl}rem;
 	${({ theme }) => theme.mediaQuery.tablet} {
@@ -39,7 +41,7 @@ const LeftWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: ${({ theme }) => theme.fontSize.xl}rem;
-	flex: 1;
+	flex: 0.3;
 	min-width: 320px;
 	max-width: 500px;
 	${({ theme }) => theme.mediaQuery.tablet} {
@@ -49,5 +51,5 @@ const LeftWrapper = styled.div`
 
 const RightWrapper = styled.div`
 	min-width: 320px;
-	flex: 1;
+	flex: 0.7;
 `;

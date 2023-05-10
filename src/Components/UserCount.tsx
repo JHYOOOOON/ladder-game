@@ -119,14 +119,24 @@ const Wrapper = styled.div`
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	gap: ${({ theme }) => theme.fontSize.xxs}rem;
+	gap: ${({ theme }) => theme.fontSize.base}rem;
 `;
 
 const CountButton = styled.button`
 	padding: ${({ theme }) => theme.fontSize.xxs}rem;
 	border: none;
-	cursor: pointer;
+	border-radius: 5px;
 	font-size: ${({ theme }) => theme.fontSize.xl}rem;
+	background-color: ${({ theme }) => theme.color.primary300};
+	transition: 0.1s background-color;
+	cursor: pointer;
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	&:hover:not(:disabled) {
+		background-color: ${({ theme }) => theme.color.primary100};
+	}
 `;
 
 const Count = styled.p`
