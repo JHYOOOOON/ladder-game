@@ -1,10 +1,22 @@
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useAtomValue } from "jotai";
 import styled, { css } from "styled-components";
 
 import { withResultNames, withUserCount, withUserNames } from "../States";
 import { PrimaryButton, SecondaryButton } from "./Common";
-import { BOARD_SIZE, COLORS, MAX_LEG, MAX_X, MIN_LEG, MIN_X } from "../constants";
+import {
+	BOARD_SIZE,
+	CANVAS_HEIGHT,
+	CANVAS_WIDTH,
+	COLORS,
+	LINE_COLOR,
+	LINE_WIDTH,
+	MAX_LEG,
+	MAX_X,
+	MIN_LEG,
+	MIN_X,
+} from "../constants";
+import { getRandomNumber } from "../utils";
 
 type Match = { name: string; value: string[] };
 
@@ -20,11 +32,9 @@ export function LadderGame() {
 	const [ladders, setLadders] = useState<number[][] | null>(null);
 	const [clickedColumn, setClickedColumn] = useState<number | null>(null);
 	const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
-	const [data, setData] = useState<ImageData | null>(null);
+	const [initLadderData, setInitLadderData] = useState<ImageData | null>(null);
 
-	const getRandomNumber = (max: number, min: number) => Math.floor(Math.random() * (max - min)) + min;
-
-	const getLegs = () => {
+	const getLegs = useCallback(() => {
 		const legOfColumn = Array.from({ length: userCount - 1 }, () => getRandomNumber(MAX_LEG, MIN_LEG));
 		const legs: number[][] = [];
 		let rows: Set<number> = new Set();
@@ -46,7 +56,94 @@ export function LadderGame() {
 		}
 		legs.push([]);
 		return legs;
-	};
+	}, []);
+
+	const drawLine = useCallback((ctx: CanvasRenderingContext2D, startXY: [number, number], endXY: [number, number]) => {
+		ctx.beginPath();
+		ctx.moveTo(startXY[0], startXY[1]);
+		ctx.lineTo(endXY[0], endXY[1]);
+		ctx.stroke();
+	}, []);
+
+	const drawVerticalLine = useCallback(
+		(ctx: CanvasRenderingContext2D, columnCount: number, startX: number, stepSize: number) => {
+			for (let column = 0; column < columnCount; column++) {
+				drawLine(ctx, [startX + column * stepSize, 0], [startX + column * stepSize, CANVAS_HEIGHT]);
+			}
+		},
+		[]
+	);
+
+	const drawHorizontalLine = useCallback(
+		(ctx: CanvasRenderingContext2D, startX: number, stepSize: number, legs: number[][]) => {
+			for (let column = 0; column < legs.length; column++) {
+				for (const row of legs[column]) {
+					drawLine(
+						ctx,
+						[startX + column * stepSize, row * (CANVAS_HEIGHT / MAX_X)],
+						[startX + stepSize * (column + 1), row * (CANVAS_HEIGHT / MAX_X)]
+					);
+				}
+			}
+		},
+		[]
+	);
+
+	const handleMatchResults = useCallback(
+		(ladders: number[][]) => {
+			const wins = new Map();
+			for (let column = 0; column < userCount; column++) {
+				const visited = Array.from(Array(BOARD_SIZE), () => Array(userCount).fill(false));
+				const queue: number[][] = [];
+				visited[0][column] = true;
+				queue.push([0, column]);
+				while (queue.length > 0) {
+					const [x, y] = queue.shift()!;
+					if (x === BOARD_SIZE - 1) {
+						if (wins.has(resultNames[y])) {
+							wins.set(resultNames[y], [...wins.get(resultNames[y]), userNames[column]]);
+						} else {
+							wins.set(resultNames[y], [userNames[column]]);
+						}
+						break;
+					}
+					if (y > 0 && ladders[y - 1].includes(x) && visited[x][y - 1] === false) {
+						visited[x][y - 1] = true;
+						queue.push([x, y - 1]);
+						continue;
+					} else if (ladders[y].includes(x) && visited[x][y + 1] === false) {
+						visited[x][y + 1] = true;
+						queue.push([x, y + 1]);
+						continue;
+					}
+
+					visited[x + 1][y] = true;
+					queue.push([x + 1, y]);
+				}
+			}
+			const match: Matches = Array.from(wins, ([name, value]) => ({ name, value }));
+			match.sort((a, b) => {
+				if (a.value.length === b.value.length) {
+					return a.name < b.name ? -1 : 1;
+				} else {
+					return a.value.length - b.value.length;
+				}
+			});
+			setMatches(match);
+		},
+		[resultNames, userCount, userNames]
+	);
+
+	const saveCanvasData = useCallback((ctx: CanvasRenderingContext2D) => {
+		const canvasData = ctx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		setInitLadderData(canvasData);
+	}, []);
+
+	const handleUserNameClick = useCallback((event: MouseEvent) => {
+		const target = event.target as HTMLElement;
+		if (target.dataset.index === undefined) return;
+		setClickedColumn(Number(target.dataset.index));
+	}, []);
 
 	useEffect(() => {
 		if (!canvasRef.current) return;
@@ -54,93 +151,31 @@ export function LadderGame() {
 		const ctx = ctxRef.current;
 		if (ctx === null) return;
 
-		const width = canvasRef.current.width;
-		const height = canvasRef.current.height;
-		ctx.lineWidth = 3;
-		ctx.strokeStyle = "#333";
-
-		const startX = width / (userCount * 2);
-		const stepSize = (width - startX * 2) / (userCount - 1);
-
-		// 세로줄
-		for (let column = 0; column < userCount; column++) {
-			ctx.beginPath();
-			ctx.moveTo(startX + column * stepSize, 0);
-			ctx.lineTo(startX + column * stepSize, height);
-			ctx.stroke();
-		}
-
+		const startX = CANVAS_WIDTH / (userCount * 2);
+		const stepSize = (CANVAS_WIDTH - startX * 2) / (userCount - 1);
 		const legs = getLegs();
+		ctx.lineWidth = LINE_WIDTH;
+		ctx.strokeStyle = LINE_COLOR;
+
 		setLadders(legs);
-
-		// 가로줄
-		for (let column = 0; column < legs.length; column++) {
-			for (const row of legs[column]) {
-				ctx.beginPath();
-				ctx.moveTo(startX + column * stepSize, row * (height / MAX_X));
-				ctx.lineTo(startX + stepSize * (column + 1), row * (height / MAX_X));
-				ctx.stroke();
-			}
-		}
-
-		// 당첨 결과
-		const wins = new Map();
-		for (let column = 0; column < userCount; column++) {
-			const visited = Array.from(Array(BOARD_SIZE), () => Array(userCount).fill(false));
-			const queue: number[][] = [];
-			visited[0][column] = true;
-			queue.push([0, column]);
-			while (queue.length > 0) {
-				const [x, y] = queue.shift()!;
-				if (x === BOARD_SIZE - 1) {
-					if (wins.has(resultNames[y])) {
-						wins.set(resultNames[y], [...wins.get(resultNames[y]), userNames[column]]);
-					} else {
-						wins.set(resultNames[y], [userNames[column]]);
-					}
-					break;
-				}
-				if (y > 0 && legs[y - 1].includes(x) && visited[x][y - 1] === false) {
-					visited[x][y - 1] = true;
-					queue.push([x, y - 1]);
-					continue;
-				} else if (legs[y].includes(x) && visited[x][y + 1] === false) {
-					visited[x][y + 1] = true;
-					queue.push([x, y + 1]);
-					continue;
-				}
-
-				visited[x + 1][y] = true;
-				queue.push([x + 1, y]);
-			}
-		}
-		const match: Matches = Array.from(wins, ([name, value]) => ({ name, value }));
-		match.sort((a, b) => {
-			if (a.value.length === b.value.length) {
-				return a.name < b.name ? -1 : 1;
-			} else {
-				return a.value.length - b.value.length;
-			}
-		});
-		setMatches(match);
-		const canvasData = ctx.getImageData(0, 0, width, height);
-		setData(canvasData);
-	}, []);
+		drawVerticalLine(ctx, userCount, startX, stepSize);
+		drawHorizontalLine(ctx, startX, stepSize, legs);
+		handleMatchResults(legs);
+		saveCanvasData(ctx);
+	}, [userCount]);
 
 	useEffect(() => {
 		if (!ladders || clickedColumn === null || !canvasRef.current) return;
 		if (!canvasRef.current || !ctxRef.current) return;
 		const ctx = ctxRef.current;
 
-		data && ctx.putImageData(data, 0, 0);
+		initLadderData && ctx.putImageData(initLadderData, 0, 0);
 
-		const width = canvasRef.current.width;
-		const height = canvasRef.current.height;
 		ctx.lineWidth = 5;
 		ctx.strokeStyle = COLORS[clickedColumn];
 
-		const startX = width / (userCount * 2);
-		const stepSize = (width - startX * 2) / (userCount - 1);
+		const startX = CANVAS_WIDTH / (userCount * 2);
+		const stepSize = (CANVAS_WIDTH - startX * 2) / (userCount - 1);
 
 		const visited = Array.from(Array(BOARD_SIZE), () => Array(userCount).fill(false));
 		const queue: number[][] = [];
@@ -154,50 +189,43 @@ export function LadderGame() {
 			if (y > 0 && ladders[y - 1].includes(x) && visited[x][y - 1] === false) {
 				visited[x][y - 1] = true;
 				queue.push([x, y - 1]);
-
-				ctx.beginPath();
-				ctx.moveTo(startX + y * stepSize, x * (height / MAX_X));
-				ctx.lineTo(startX + stepSize * (y - 1), x * (height / MAX_X));
-				ctx.stroke();
-
+				drawLine(
+					ctx,
+					[startX + y * stepSize, x * (CANVAS_HEIGHT / MAX_X)],
+					[startX + stepSize * (y - 1), x * (CANVAS_HEIGHT / MAX_X)]
+				);
 				continue;
 			} else if (ladders[y].includes(x) && visited[x][y + 1] === false) {
 				visited[x][y + 1] = true;
 				queue.push([x, y + 1]);
-
-				ctx.beginPath();
-				ctx.moveTo(startX + y * stepSize, x * (height / MAX_X));
-				ctx.lineTo(startX + stepSize * (y + 1), x * (height / MAX_X));
-				ctx.stroke();
-
+				drawLine(
+					ctx,
+					[startX + y * stepSize, x * (CANVAS_HEIGHT / MAX_X)],
+					[startX + stepSize * (y + 1), x * (CANVAS_HEIGHT / MAX_X)]
+				);
 				continue;
 			}
 
 			visited[x + 1][y] = true;
 			queue.push([x + 1, y]);
-			ctx.beginPath();
-			ctx.moveTo(startX + y * stepSize, (height / MAX_X) * x);
-			ctx.lineTo(startX + y * stepSize, (height / MAX_X) * (x + 1));
-			ctx.stroke();
+			drawLine(
+				ctx,
+				[startX + y * stepSize, (CANVAS_HEIGHT / MAX_X) * x],
+				[startX + y * stepSize, (CANVAS_HEIGHT / MAX_X) * (x + 1)]
+			);
 		}
-	}, [ladders, clickedColumn]);
-
-	const handleClick = (event: MouseEvent) => {
-		const target = event.target as HTMLElement;
-		if (target.dataset.index === undefined) return;
-		setClickedColumn(Number(target.dataset.index));
-	};
+	}, [ladders, clickedColumn, initLadderData, userCount]);
 
 	return (
 		<Wrapper>
-			<List onClick={handleClick}>
+			<List onClick={handleUserNameClick}>
 				{userNames.map((name, index) => (
 					<User key={`user_${index}`}>
 						<UserButton data-index={index}>{name}</UserButton>
 					</User>
 				))}
 			</List>
-			<StyledCanvas ref={canvasRef} width="1500px" height="500px"></StyledCanvas>
+			<StyledCanvas ref={canvasRef} width={`${CANVAS_WIDTH}px`} height={`${CANVAS_HEIGHT}px`}></StyledCanvas>
 			<List>
 				{resultNames.map((result, index) => (
 					<Result key={`answer_${index}`}>{result}</Result>

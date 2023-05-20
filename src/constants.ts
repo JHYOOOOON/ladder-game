@@ -28,3 +28,7 @@ export const COLORS = [
 	"#39b1eb",
 	"#7712fe",
 ];
+export const LINE_WIDTH = 3;
+export const LINE_COLOR = "#333333";
+export const CANVAS_WIDTH = 1500;
+export const CANVAS_HEIGHT = 500;
