@@ -1,15 +1,19 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 interface ICard {
 	active: boolean;
 	name: string;
 	children: React.ReactNode;
+	disabled?: boolean;
+	handleTitleClick?: () => void;
 }
 
-export function Card({ active, children, name }: ICard) {
+export function Card({ active, children, name, handleTitleClick, disabled = true }: ICard) {
 	return (
 		<Wrapper>
-			<Title>{name}</Title>
+			<Title onClick={handleTitleClick} disabled={disabled}>
+				{name}
+			</Title>
 			{active && <Content>{children}</Content>}
 		</Wrapper>
 	);
@@ -21,10 +25,16 @@ const Wrapper = styled.section`
 	overflow: hidden;
 `;
 
-const Title = styled.p`
+const Title = styled.p<{ disabled: boolean }>`
 	padding: ${({ theme }) => theme.fontSize.base}rem ${({ theme }) => theme.fontSize.lg}rem;
 	font-size: ${({ theme }) => theme.fontSize.xxl}rem;
 	font-weight: bold;
+	cursor: pointer;
+	${({ disabled }) =>
+		disabled &&
+		css`
+			cursor: initial;
+		`}
 `;
 
 const Content = styled.div`
