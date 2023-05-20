@@ -20,6 +20,7 @@ export function LadderGame() {
 	const [ladders, setLadders] = useState<number[][] | null>(null);
 	const [clickedColumn, setClickedColumn] = useState<number | null>(null);
 	const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+	const [data, setData] = useState<ImageData | null>(null);
 
 	const getRandomNumber = (max: number, min: number) => Math.floor(Math.random() * (max - min)) + min;
 
@@ -122,7 +123,8 @@ export function LadderGame() {
 			}
 		});
 		setMatches(match);
-		ctx.save();
+		const canvasData = ctx.getImageData(0, 0, width, height);
+		setData(canvasData);
 	}, []);
 
 	useEffect(() => {
@@ -130,7 +132,7 @@ export function LadderGame() {
 		if (!canvasRef.current || !ctxRef.current) return;
 		const ctx = ctxRef.current;
 
-		ctx.restore();
+		data && ctx.putImageData(data, 0, 0);
 
 		const width = canvasRef.current.width;
 		const height = canvasRef.current.height;
