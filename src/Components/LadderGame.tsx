@@ -3,7 +3,6 @@ import { useAtomValue } from "jotai";
 import styled, { css } from "styled-components";
 
 import { withResultNames, withUserCount, withUserNames } from "../States";
-import { PrimaryButton, SecondaryButton } from "./Common";
 import {
 	BOARD_SIZE,
 	CANVAS_HEIGHT,
@@ -17,16 +16,16 @@ import {
 	MIN_X,
 } from "../constants";
 import { getRandomNumber } from "../utils";
+import { ResultSection } from ".";
 
 type Match = { name: string; value: string[] };
 
-type Matches = Match[];
+export type Matches = Match[];
 
 export function LadderGame() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const userCount = useAtomValue(withUserCount);
 	const [matches, setMatches] = useState<Matches>([]);
-	const [showResult, setShowResult] = useState(false);
 	const userNames = useAtomValue(withUserNames);
 	const resultNames = useAtomValue(withResultNames);
 	const [ladders, setLadders] = useState<number[][] | null>(null);
@@ -231,24 +230,7 @@ export function LadderGame() {
 					<Result key={`answer_${index}`}>{result}</Result>
 				))}
 			</List>
-			<ButtonWrapper>
-				<SecondaryButton onClick={() => window.location.reload()}>다시 하기</SecondaryButton>
-				<PrimaryButton onClick={() => setShowResult((prev) => !prev)}>
-					전체 결과 {showResult ? "숨기기" : "보기"}
-				</PrimaryButton>
-			</ButtonWrapper>
-			<ResultWrapper className={`${showResult ? "show" : ""}`}>
-				{matches.map((item, index) => (
-					<section key={`${item}_${index}`}>
-						<ResultTitle>{item.name}</ResultTitle>
-						<ResultList>
-							{item.value.map((value, index) => (
-								<ResultItem key={`${value}_${index}`}>{value}</ResultItem>
-							))}
-						</ResultList>
-					</section>
-				))}
-			</ResultWrapper>
+			<ResultSection matches={matches} />
 		</Wrapper>
 	);
 }
@@ -298,41 +280,4 @@ const UserButton = styled.button`
 const Result = styled.li`
 	${Item}
 	align-items: flex-start;
-`;
-
-const ButtonWrapper = styled.div`
-	display: flex;
-	gap: 5px;
-	margin: 15px 0;
-	button {
-		cursor: pointer;
-	}
-`;
-
-const ResultWrapper = styled.ul`
-	display: none;
-	flex-direction: column;
-	gap: 15px;
-	width: 100%;
-	&.show {
-		display: flex;
-	}
-`;
-
-const ResultTitle = styled.p`
-	font-size: ${({ theme }) => theme.fontSize.xl}rem;
-	margin-bottom: 7px;
-`;
-
-const ResultList = styled.ul`
-	display: flex;
-	gap: 5px;
-	flex-wrap: wrap;
-`;
-
-const ResultItem = styled.li`
-	padding: 5px 8px;
-	border: 1px solid black;
-	border-radius: 3px;
-	word-break: keep-all;
 `;

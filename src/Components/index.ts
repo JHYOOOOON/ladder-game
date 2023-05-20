@@ -4,3 +4,4 @@ export * from "./UserInform";
 export * from "./UserName";
 export * from "./ResultName";
 export * from "./LadderGame";
+export * from "./ResultSection";
