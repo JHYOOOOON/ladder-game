@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useAtom, useSetAtom } from "jotai";
 
 import { MAX_USER_COUNT, MIN_USER_COUNT } from "../constants";
-import { withUserCount, withUserCountActive, withUserInformActive } from "../States";
+import { withUserCount, withUserInformActive } from "../States";
 import { PrimaryButton } from "./Common";
 
 type VIEW_TYPE = "modify" | "view";
@@ -13,7 +13,6 @@ export function UserCount() {
 	const [viewType, setViewType] = useState<VIEW_TYPE>("view");
 	const [modifyCount, setModifyCount] = useState(MIN_USER_COUNT);
 	const [userCount, setUserCount] = useAtom(withUserCount);
-	const setIsActive = useSetAtom(withUserCountActive);
 	const setUserNameActive = useSetAtom(withUserInformActive);
 	const textRef = useRef<HTMLInputElement>(null);
 
@@ -48,7 +47,6 @@ export function UserCount() {
 		if (viewType === "modify") {
 			changeToView();
 		}
-		setIsActive(false);
 		setUserNameActive(true);
 	};
 

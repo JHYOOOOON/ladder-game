@@ -15,19 +15,25 @@ export const withUserCountActive = atom(
 	(get) => get(isUserCountActive),
 	(get, set, active: boolean) => {
 		set(isUserCountActive, active);
+		set(isUserInformActive, false);
+		set(isLadderActive, false);
 	}
 );
 
 export const withUserInformActive = atom(
 	(get) => get(isUserInformActive),
 	(get, set, active: boolean) => {
+		set(isUserCountActive, false);
 		set(isUserInformActive, active);
+		set(isLadderActive, false);
 	}
 );
 
 export const withLadderActive = atom(
 	(get) => get(isLadderActive),
 	(get, set, active: boolean) => {
+		set(isUserCountActive, false);
+		set(isUserInformActive, false);
 		set(isLadderActive, active);
 	}
 );

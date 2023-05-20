@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import styled from "styled-components";
 
@@ -8,7 +8,6 @@ import {
 	withLadderActive,
 	withUserCount,
 	withUserCountActive,
-	withUserInformActive,
 } from "../States";
 import { UserName, ResultName } from ".";
 import { PrimaryButton, SecondaryButton } from "./Common";
@@ -17,7 +16,6 @@ export function UserInform() {
 	const userCount = useAtomValue(withUserCount);
 	const setInitialUserName = useSetAtom(withInitialUserName);
 	const setInitialResultName = useSetAtom(withInitialResultName);
-	const setIsActive = useSetAtom(withUserInformActive);
 	const setUserCountActive = useSetAtom(withUserCountActive);
 	const setLadderAcive = useSetAtom(withLadderActive);
 
@@ -26,15 +24,13 @@ export function UserInform() {
 		setInitialResultName(userCount);
 	}, [userCount]);
 
-	const handleClickPrev = () => {
-		setIsActive(false);
+	const handleClickPrev = useCallback(() => {
 		setUserCountActive(true);
-	};
+	}, []);
 
-	const handleClickNext = () => {
-		setIsActive(false);
+	const handleClickNext = useCallback(() => {
 		setLadderAcive(true);
-	};
+	}, []);
 
 	return (
 		<section>
