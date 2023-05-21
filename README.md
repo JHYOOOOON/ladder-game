@@ -1,6 +1,6 @@
 # 🪜 사다리타기
 
-&nbsp;간단한 사다리 타기 게임
+&nbsp;간단한 [사다리타기](https://may-ladder-game.netlify.app) 게임
 <img width="1000" alt="image" src="https://github.com/JHYOOOOON/Oneul/assets/50460114/59d78587-21c0-4d85-96a6-48c9a89a2e98">
 
 <br/>
