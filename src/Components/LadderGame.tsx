@@ -134,7 +134,10 @@ export function LadderGame() {
 	);
 
 	const saveCanvasData = useCallback((ctx: CanvasRenderingContext2D) => {
-		const canvasData = ctx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		if (!canvasRef.current) return;
+		const width = canvasRef.current.width;
+		const height = canvasRef.current.height;
+		const canvasData = ctx.getImageData(0, 0, width, height);
 		setInitLadderData(canvasData);
 	}, []);
 
