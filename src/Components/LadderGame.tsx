@@ -218,28 +218,59 @@ export function LadderGame() {
 	}, [ladders, clickedColumn, initLadderData, userCount]);
 
 	return (
-		<Wrapper width={userCount * 150}>
-			<List onClick={handleUserNameClick}>
-				{userNames.map((name, index) => (
-					<User key={`user_${index}`}>
-						<UserButton data-index={index}>{name}</UserButton>
-					</User>
-				))}
-			</List>
-			<StyledCanvas ref={canvasRef} width={`${userCount * 150 * 2}px`} height={`${CANVAS_HEIGHT}px`}></StyledCanvas>
-			<List>
-				{resultNames.map((result, index) => (
-					<Result key={`answer_${index}`}>{result}</Result>
-				))}
-			</List>
+		<Wrapper>
+			<ScrollWrapper>
+				<CanvasWrapper width={userCount * 150}>
+					<List onClick={handleUserNameClick}>
+						{userNames.map((name, index) => (
+							<User key={`user_${index}`}>
+								<UserButton data-index={index}>{name}</UserButton>
+							</User>
+						))}
+					</List>
+					<StyledCanvas ref={canvasRef} width={`${userCount * 150 * 2}px`} height={`${CANVAS_HEIGHT}px`}></StyledCanvas>
+					<List>
+						{resultNames.map((result, index) => (
+							<Result key={`answer_${index}`}>{result}</Result>
+						))}
+					</List>
+				</CanvasWrapper>
+			</ScrollWrapper>
 			<ResultSection matches={matches} />
 		</Wrapper>
 	);
 }
 
-const Wrapper = styled.div<{ width: number }>`
+const Wrapper = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+`;
+
+const ScrollWrapper = styled.div`
+	width: 100%;
+	overflow-x: auto;
+
+	::-webkit-scrollbar {
+		height: 5px;
+	}
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background-color: #999;
+		border-radius: 3px;
+	}
+	::-webkit-scrollbar-thumb:hover {
+		background-color: #777;
+	}
+`;
+
+const CanvasWrapper = styled.div<{ width: number }>`
 	width: ${({ width }) => width}px;
 	height: 100%;
+	padding: 10px 0;
 	margin: 0 auto;
 	display: flex;
 	justify-content: center;

@@ -35,6 +35,7 @@ export function ResultSection({ matches }: ResultSectionProps) {
 }
 
 const ButtonWrapper = styled.div`
+	width: 100%;
 	display: flex;
 	gap: 5px;
 	margin: 15px 0;

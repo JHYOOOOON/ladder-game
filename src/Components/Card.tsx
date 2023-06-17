@@ -40,7 +40,6 @@ const Title = styled.p<{ disabled: boolean }>`
 const Content = styled.div`
 	position: relative;
 	padding: ${({ theme }) => theme.fontSize.xxl}rem ${({ theme }) => theme.fontSize.lg}rem;
-	overflow-x: auto;
 	&::before {
 		position: absolute;
 		top: 0;
