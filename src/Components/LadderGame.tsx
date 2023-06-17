@@ -150,8 +150,9 @@ export function LadderGame() {
 		const ctx = ctxRef.current;
 		if (ctx === null) return;
 
-		const startX = CANVAS_WIDTH / (userCount * 2);
-		const stepSize = (CANVAS_WIDTH - startX * 2) / (userCount - 1);
+		const width = canvasRef.current.width;
+		const startX = width / (userCount * 2);
+		const stepSize = (width - startX * 2) / (userCount - 1);
 		const legs = getLegs();
 		ctx.lineWidth = LINE_WIDTH;
 		ctx.strokeStyle = LINE_COLOR;
@@ -171,10 +172,11 @@ export function LadderGame() {
 		initLadderData && ctx.putImageData(initLadderData, 0, 0);
 
 		ctx.lineWidth = 5;
-		ctx.strokeStyle = COLORS[clickedColumn];
+		ctx.strokeStyle = COLORS[clickedColumn % COLORS.length];
 
-		const startX = CANVAS_WIDTH / (userCount * 2);
-		const stepSize = (CANVAS_WIDTH - startX * 2) / (userCount - 1);
+		const width = canvasRef.current.width;
+		const startX = width / (userCount * 2);
+		const stepSize = (width - startX * 2) / (userCount - 1);
 
 		const visited = Array.from(Array(BOARD_SIZE), () => Array(userCount).fill(false));
 		const queue: number[][] = [];
@@ -216,7 +218,7 @@ export function LadderGame() {
 	}, [ladders, clickedColumn, initLadderData, userCount]);
 
 	return (
-		<Wrapper>
+		<Wrapper width={userCount * 150}>
 			<List onClick={handleUserNameClick}>
 				{userNames.map((name, index) => (
 					<User key={`user_${index}`}>
@@ -224,7 +226,7 @@ export function LadderGame() {
 					</User>
 				))}
 			</List>
-			<StyledCanvas ref={canvasRef} width={`${CANVAS_WIDTH}px`} height={`${CANVAS_HEIGHT}px`}></StyledCanvas>
+			<StyledCanvas ref={canvasRef} width={`${userCount * 150 * 2}px`} height={`${CANVAS_HEIGHT}px`}></StyledCanvas>
 			<List>
 				{resultNames.map((result, index) => (
 					<Result key={`answer_${index}`}>{result}</Result>
@@ -235,8 +237,8 @@ export function LadderGame() {
 	);
 }
 
-const Wrapper = styled.div`
-	width: 100%;
+const Wrapper = styled.div<{ width: number }>`
+	width: ${({ width }) => width}px;
 	height: 100%;
 	margin: 0 auto;
 	display: flex;

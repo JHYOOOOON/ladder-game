@@ -1,5 +1,5 @@
 export const MIN_USER_COUNT = 2;
-export const MAX_USER_COUNT = 20;
+export const MAX_USER_COUNT = 100;
 export const MIN_LEG = 2;
 export const MAX_LEG = 5;
 export const BOARD_SIZE = 15;
